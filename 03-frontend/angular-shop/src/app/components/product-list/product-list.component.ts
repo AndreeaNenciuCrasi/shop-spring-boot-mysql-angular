@@ -10,10 +10,16 @@ import { ProductService } from 'src/app/services/product.service';
 })
 export class ProductListComponent implements OnInit {
 
-  products: Product[];
-  currentCategoryId: number;
+  products: Product[] = [];
+  currentCategoryId: number = 1;
+  previousCategoryId: number;
   currentCategoryName: string;
-  searchMode: boolean;
+  searchMode: boolean = false;
+
+  thePageNumber: number = 1;
+  thePageSize: number = 10;
+  theTotalElements: number = 0;
+  
 
   constructor(private productService: ProductService, 
               private route: ActivatedRoute) { }
@@ -65,12 +71,27 @@ export class ProductListComponent implements OnInit {
       this.currentCategoryName = 'Books';
     }
     //now get the products for the given category id
+
+    if(this.previousCategoryId != this.currentCategoryId){
+      this.thePageNumber = 1;
+    }
+    this.previousCategoryId = this.currentCategoryId;
+
+    console.log(`currentCategoryId = ${this.currentCategoryId}, thePageNumber=${this.thePageNumber}`);
     
-    this.productService.getProductList(this.currentCategoryId).subscribe(
-      data => {
-        this.products = data;
-      }
-    )
+    this.productService.getProductListPaginate(this.thePageNumber-1, 
+                                                this.thePageSize, 
+                                                this.currentCategoryId)
+                                                .subscribe(this.processResult());
+  }
+
+  processResult(){
+    return data =>{
+      this.products = data._embedded.products;
+      this.thePageNumber = data.page.number + 1;
+      this.thePageSize = data.page.size;
+      this.theTotalElements = data.page.totalElements;
+    }
   }
 
 }
