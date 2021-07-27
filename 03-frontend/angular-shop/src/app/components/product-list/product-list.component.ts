@@ -59,7 +59,7 @@ export class ProductListComponent implements OnInit {
     this.productService.searchProductsPaginate(this.thePageNumber-1, 
                                               this.thePageSize, 
                                               theKeyword).subscribe(this.processResult());
-  }
+  } 
 
   handleListProducts(){
     //check if "id" parameter is available
